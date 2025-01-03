@@ -3,6 +3,7 @@
 A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader) mod for [Resonite](https://resonite.com/) that adds inspector UI for editing arrays.
 
 ## Screenshots
+![Screenshot](https://github.com/user-attachments/assets/63f0b51c-2f51-4d6a-a419-c801e11d0a40)
 
 
 ## Installation
