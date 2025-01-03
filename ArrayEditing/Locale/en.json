@@ -1,8 +1,0 @@
-{
-  "localeCode": "en",
-  "authors": [ "Banane9" ],
-  "messages": {
-    "ArrayEditing.ArrayEditor.Description": "Proxies Arrays to Lists to allow editing them in inspectors.",
-    "ArrayEditing.ListUIImprovements.Description": "Improves the UI of List Editors."
-  }
-}
