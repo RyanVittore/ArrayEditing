@@ -15,7 +15,7 @@ using ResoniteModLoader;
 namespace ArrayEditing;
 
 public class ArrayEditing : ResoniteMod {
-	internal const string VERSION_CONSTANT = "1.0.0";
+	internal const string VERSION_CONSTANT = "1.0.1";
 	public override string Name => "Array Editing";
 	public override string Author => "Ryan Vittore";
 	public override string Version => VERSION_CONSTANT;
@@ -33,7 +33,6 @@ public class ArrayEditing : ResoniteMod {
 		Harmony harmony = new("RyanVittore.ArrayEditing");
 		harmony.PatchAll();
 	}
-
 	[HarmonyPatch(typeof(SyncMemberEditorBuilder), "BuildArray")]
 	internal sealed class ArrayEditor {
 		private static readonly MethodInfo _addCurveValueProxying = AccessTools.Method(typeof(ArrayEditor), nameof(AddCurveValueProxying));
@@ -41,7 +40,6 @@ public class ArrayEditing : ResoniteMod {
 		private static readonly MethodInfo _addListReferenceProxying = AccessTools.Method(typeof(ArrayEditor), nameof(AddListReferenceProxying));
 		private static readonly MethodInfo _addListValueProxying = AccessTools.Method(typeof(ArrayEditor), nameof(AddListValueProxying));
 		private static readonly Type _iWorldElementType = typeof(IWorldElement);
-		private static readonly Type _particleBurstType = typeof(ParticleBurst);
 
 		private static readonly MethodInfo _setLinearPoint = AccessTools.Method(typeof(ArrayEditor), nameof(SetLinearPoint));
 		private static readonly MethodInfo _setCurvePoint = AccessTools.Method(typeof(ArrayEditor), nameof(SetCurvePoint));
@@ -58,8 +56,7 @@ public class ArrayEditing : ResoniteMod {
 
 			AddUpdateProxies(array, list, list.Elements);
 
-			list.ElementsAdded += (list, startIndex, count) =>
-			{
+			list.ElementsAdded += (list, startIndex, count) => {
 				var addedElements = list.Elements.Skip(startIndex).Take(count).ToArray();
 				var buffer = addedElements.Select(point => new CurveKey<T>(point.Position, point.Value)).ToArray();
 
@@ -72,8 +69,7 @@ public class ArrayEditing : ResoniteMod {
 				AddUpdateProxies(array, list, addedElements);
 			};
 
-			list.ElementsRemoved += (list, startIndex, count) =>
-			{
+			list.ElementsRemoved += (list, startIndex, count) => {
 				if (_skipListChanges) return;
 				if (array.Count < startIndex + count) return;
 				array.Changed -= ArrayChanged;
@@ -92,8 +88,7 @@ public class ArrayEditing : ResoniteMod {
 
 			AddUpdateProxies(array, list, list.Elements);
 
-			list.ElementsAdded += (list, startIndex, count) =>
-			{
+			list.ElementsAdded += (list, startIndex, count) => {
 				var addedElements = list.Elements.Skip(startIndex).Take(count).ToArray();
 				var buffer = addedElements.Select(point => new LinearKey<T>(point.Position, point.Value)).ToArray();
 
@@ -105,8 +100,7 @@ public class ArrayEditing : ResoniteMod {
 				AddUpdateProxies(array, list, addedElements);
 			};
 
-			list.ElementsRemoved += (list, startIndex, count) =>
-			{
+			list.ElementsRemoved += (list, startIndex, count) => {
 				if (_skipListChanges) return;
 				if (array.Count < startIndex + count) return;
 				array.Changed -= ArrayChanged;
@@ -124,8 +118,7 @@ public class ArrayEditing : ResoniteMod {
 
 			AddUpdateProxies(array, list, list.Elements);
 
-			list.ElementsAdded += (list, startIndex, count) =>
-			{
+			list.ElementsAdded += (list, startIndex, count) => {
 				var addedElements = list.Elements.Skip(startIndex).Take(count).ToArray();
 				var buffer = addedElements.Select(syncRef => syncRef.Target).ToArray();
 
@@ -137,8 +130,7 @@ public class ArrayEditing : ResoniteMod {
 				AddUpdateProxies(array, list, addedElements);
 			};
 
-			list.ElementsRemoved += (list, startIndex, count) =>
-			{
+			list.ElementsRemoved += (list, startIndex, count) => {
 				if (_skipListChanges) return;
 				if (array.Count < startIndex + count) return;
 				array.Changed -= ArrayChanged;
@@ -156,8 +148,7 @@ public class ArrayEditing : ResoniteMod {
 
 			AddUpdateProxies(array, list, list.Elements);
 
-			list.ElementsAdded += (list, startIndex, count) =>
-			{
+			list.ElementsAdded += (list, startIndex, count) => {
 				var addedElements = list.Elements.Skip(startIndex).Take(count).ToArray();
 				var buffer = addedElements.Select(sync => sync.Value).ToArray();
 
@@ -169,40 +160,7 @@ public class ArrayEditing : ResoniteMod {
 				AddUpdateProxies(array, list, addedElements);
 			};
 
-			list.ElementsRemoved += (list, startIndex, count) =>
-			{
-				if (_skipListChanges) return;
-				if (array.Count < startIndex + count) return;
-				array.Changed -= ArrayChanged;
-				array.Remove(startIndex, count);
-				array.Changed += ArrayChanged;
-			};
-		}
-
-		private static void AddParticleBurstListProxying(SyncArray<LinearKey<ParticleBurst>> array, SyncElementList<ValueGradientDriver<int2>.Point> list) {
-			foreach (var burst in array) {
-				var point = list.Add();
-				point.Position.Value = burst.time;
-				point.Value.Value = new int2(burst.value.minCount, burst.value.maxCount);
-			}
-
-			AddUpdateProxies(array, list, list.Elements);
-
-			list.ElementsAdded += (list, startIndex, count) =>
-			{
-				var addedElements = list.Elements.Skip(startIndex).Take(count).ToArray();
-				var buffer = addedElements.Select(point => new LinearKey<ParticleBurst>(point.Position, new ParticleBurst() { minCount = point.Value.Value.x, maxCount = point.Value.Value.y })).ToArray();
-
-				if (!_skipListChanges) {
-					array.Changed -= ArrayChanged;
-					array.Insert(buffer, startIndex);
-					array.Changed += ArrayChanged;
-				}
-				AddUpdateProxies(array, list, addedElements);
-			};
-
-			list.ElementsRemoved += (list, startIndex, count) =>
-			{
+			list.ElementsRemoved += (list, startIndex, count) => {
 				if (_skipListChanges) return;
 				if (array.Count < startIndex + count) return;
 				array.Changed -= ArrayChanged;
@@ -220,8 +178,7 @@ public class ArrayEditing : ResoniteMod {
 
 			AddUpdateProxies(array, list, list.Elements);
 
-			list.ElementsAdded += (list, startIndex, count) =>
-			{
+			list.ElementsAdded += (list, startIndex, count) => {
 				var addedElements = list.Elements.Skip(startIndex).Take(count).ToArray();
 				var buffer = addedElements.Select(point => new TubePoint(point.Value.Value, point.Position.Value)).ToArray();
 
@@ -233,8 +190,7 @@ public class ArrayEditing : ResoniteMod {
 				AddUpdateProxies(array, list, addedElements);
 			};
 
-			list.ElementsRemoved += (list, startIndex, count) =>
-			{
+			list.ElementsRemoved += (list, startIndex, count) => {
 				if (_skipListChanges) return;
 				if (array.Count < startIndex + count) return;
 				array.Changed -= ArrayChanged;
@@ -247,8 +203,7 @@ public class ArrayEditing : ResoniteMod {
 			SyncElementList<ValueGradientDriver<T>.Point> list, IEnumerable<ValueGradientDriver<T>.Point> elements)
 					where T : IEquatable<T> {
 			foreach (var point in elements) {
-				point.Changed += syncObject =>
-				{
+				point.Changed += syncObject => {
 					if (_skipListChanges) return;
 					var index = list.IndexOfElement(point);
 					array.Changed -= ArrayChanged;
@@ -258,26 +213,10 @@ public class ArrayEditing : ResoniteMod {
 			}
 		}
 
-		private static void AddUpdateProxies(SyncArray<LinearKey<ParticleBurst>> array,
-			SyncElementList<ValueGradientDriver<int2>.Point> list, IEnumerable<ValueGradientDriver<int2>.Point> elements) {
-			foreach (var point in elements) {
-				point.Changed += field =>
-				{
-					if (_skipListChanges) return;
-					var index = list.IndexOfElement(point);
-					var key = new LinearKey<ParticleBurst>(point.Position, new ParticleBurst() { minCount = point.Value.Value.x, maxCount = point.Value.Value.y });
-					array.Changed -= ArrayChanged;
-					array[index] = key;
-					array.Changed += ArrayChanged;
-				};
-			}
-		}
-
 		private static void AddUpdateProxies<T>(SyncArray<T> array, SyncElementList<Sync<T>> list, IEnumerable<Sync<T>> elements)
 					where T : IEquatable<T> {
 			foreach (var sync in elements) {
-				sync.OnValueChange += field =>
-				{
+				sync.OnValueChange += field => {
 					if (_skipListChanges) return;
 					var index = list.IndexOfElement(sync);
 					array.Changed -= ArrayChanged;
@@ -290,8 +229,7 @@ public class ArrayEditing : ResoniteMod {
 		private static void AddUpdateProxies<T>(SyncArray<T> array, SyncElementList<SyncRef<T>> list, IEnumerable<SyncRef<T>> elements)
 			where T : class, IEquatable<T>, IWorldElement {
 			foreach (var sync in elements) {
-				sync.OnValueChange += field =>
-				{
+				sync.OnValueChange += field => {
 					if (_skipListChanges) return;
 					var index = list.IndexOfElement(sync);
 					array.Changed -= ArrayChanged;
@@ -303,8 +241,7 @@ public class ArrayEditing : ResoniteMod {
 
 		private static void AddUpdateProxies(SyncArray<TubePoint> array, SyncElementList<ValueGradientDriver<float3>.Point> list, IEnumerable<ValueGradientDriver<float3>.Point> elements) {
 			foreach (var point in elements) {
-				point.Changed += field =>
-				{
+				point.Changed += field => {
 					if (_skipListChanges) return;
 					var index = list.IndexOfElement(point);
 					var tubePoint = new TubePoint(point.Value.Value, point.Position.Value);
@@ -319,8 +256,7 @@ public class ArrayEditing : ResoniteMod {
 			SyncElementList<ValueGradientDriver<T>.Point> list, IEnumerable<ValueGradientDriver<T>.Point> elements)
 					where T : IEquatable<T> {
 			foreach (var point in elements) {
-				point.Changed += syncObject =>
-				{
+				point.Changed += syncObject => {
 					if (_skipListChanges) return;
 					var index = list.IndexOfElement(point);
 					array.Changed -= ArrayChanged;
@@ -336,20 +272,15 @@ public class ArrayEditing : ResoniteMod {
 			}
 			if (!TryGetGenericParameter(typeof(SyncArray<>), array.GetType(), out var arrayType))
 				return false;
-			
+
 			ui.Panel().Slot.GetComponent<LayoutElement>();
 			Slot slot = SyncMemberEditorBuilder.GenerateMemberField(array, name, ui, 0.3f);
 			ui.ForceNext = slot.AttachComponent<RectTransform>();
 			ui.Text("(Proxy Array)");
 			ui.NestOut();
-			
+
 			var isSyncLinear = TryGetGenericParameter(typeof(SyncLinear<>), array.GetType(), out var syncLinearType);
 			var isSyncCurve = TryGetGenericParameter(typeof(SyncCurve<>), array.GetType(), out var syncCurveType);
-
-			var isParticleBurst = syncLinearType == _particleBurstType;
-
-			if (isSyncLinear && isParticleBurst)
-				syncLinearType = typeof(int2);
 
 			var proxySlotName = $"{name}-{array.ReferenceID}-Proxy";
 			var proxiesSlot = ui.World.AssetsSlot;
@@ -373,10 +304,7 @@ public class ArrayEditing : ResoniteMod {
 				listField = gradient.GetSyncMemberFieldInfo(nameof(ValueGradientDriver<float>.Points));
 
 				if (attachedNew) {
-					if (isParticleBurst)
-						AddParticleBurstListProxying((SyncArray<LinearKey<ParticleBurst>>)array, (SyncElementList<ValueGradientDriver<int2>.Point>)list);
-					else
-						_addLinearValueProxying.MakeGenericMethod(syncLinearType).Invoke(null, [array, list]);
+					_addLinearValueProxying.MakeGenericMethod(syncLinearType).Invoke(null, [array, list]);
 				}
 			} else if (isSyncCurve && SupportsLerp(syncCurveType!)) {
 				var gradientType = typeof(ValueGradientDriver<>).MakeGenericType(syncCurveType);
@@ -450,12 +378,6 @@ public class ArrayEditing : ResoniteMod {
 			return false;
 		}
 
-		// doesn't work?
-		static void SetParticlePoint(ValueGradientDriver<int2>.Point point, LinearKey<ParticleBurst> arrayElem) {
-			point.Position.Value = arrayElem.time;
-			point.Value.Value = new int2(arrayElem.value.minCount, arrayElem.value.maxCount);
-		}
-
 		static void SetLinearPoint<T>(ValueGradientDriver<T>.Point point, LinearKey<T> arrayElem) where T : IEquatable<T> {
 			point.Position.Value = arrayElem.time;
 			point.Value.Value = arrayElem.value;
@@ -509,7 +431,6 @@ public class ArrayEditing : ResoniteMod {
 
 						var isSyncLinear = TryGetGenericParameter(typeof(SyncLinear<>), array.GetType(), out var syncLinearType);
 						var isSyncCurve = TryGetGenericParameter(typeof(SyncCurve<>), array.GetType(), out var syncCurveType);
-						var isParticleBurst = syncLinearType == _particleBurstType;
 
 						if (!TryGetGenericParameter(typeof(SyncArray<>), array.GetType(), out var genericParameter))
 							return;
@@ -520,10 +441,7 @@ public class ArrayEditing : ResoniteMod {
 							var elem = list.GetElement(i);
 
 							if (isSyncLinear && SupportsLerp(syncLinearType!)) {
-								if (isParticleBurst)
-									SetParticlePoint((ValueGradientDriver<int2>.Point)elem!, (LinearKey<ParticleBurst>)array.GetElement(i));
-								else
-									_setLinearPoint.MakeGenericMethod(syncLinearType).Invoke(null, [elem, array.GetElement(i)]);
+								_setLinearPoint.MakeGenericMethod(syncLinearType).Invoke(null, [elem, array.GetElement(i)]);
 							} else if (isSyncCurve && SupportsLerp(syncCurveType!)) {
 								_setCurvePoint.MakeGenericMethod(syncCurveType).Invoke(null, [elem, array.GetElement(i)]);
 							} else {
