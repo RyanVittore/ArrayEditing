@@ -15,7 +15,7 @@ using ResoniteModLoader;
 namespace ArrayEditing;
 
 public class ArrayEditing : ResoniteMod {
-	internal const string VERSION_CONSTANT = "1.0.1";
+	internal const string VERSION_CONSTANT = "1.0.2";
 	public override string Name => "Array Editing";
 	public override string Author => "Ryan Vittore";
 	public override string Version => VERSION_CONSTANT;
