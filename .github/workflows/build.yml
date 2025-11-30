@@ -4,7 +4,8 @@ name: Build
 
 # Trigger the action on push to master
 on:
-  workflow_call: {}  # Allow reusing this workflow
+  workflow_dispatch:
+  workflow_call:
   push:
     branches:
       - master       # Run for pushes to master
