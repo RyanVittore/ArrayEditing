@@ -46,7 +46,7 @@ public class ArrayEditing : ResoniteMod {
 
 		private static bool _skipListChanges = false;
 
-		private static void AddCurveValueProxying<T>(SyncArray<CurveKey<T>> array, SyncElementList<ValueGradientDriver<T>.Point> list)
+		private static void AddCurveValueProxying<T>(SyncArrayBase<CurveKey<T>> array, SyncElementList<ValueGradientDriver<T>.Point> list)
 			where T : IEquatable<T> {
 			foreach (var key in array) {
 				var point = list.Add();
@@ -62,7 +62,8 @@ public class ArrayEditing : ResoniteMod {
 
 				if (!_skipListChanges) {
 					array.Changed -= ArrayChanged;
-					array.Insert(buffer, startIndex);
+					array.CheckWriteIndex(startIndex);
+					array.InternalWrite(buffer, startIndex, 0, buffer.Length, true);
 					array.Changed += ArrayChanged;
 				}
 
@@ -78,7 +79,7 @@ public class ArrayEditing : ResoniteMod {
 			};
 		}
 
-		private static void AddLinearValueProxying<T>(SyncArray<LinearKey<T>> array, SyncElementList<ValueGradientDriver<T>.Point> list)
+		private static void AddLinearValueProxying<T>(SyncArrayBase<LinearKey<T>> array, SyncElementList<ValueGradientDriver<T>.Point> list)
 			where T : IEquatable<T> {
 			foreach (var key in array) {
 				var point = list.Add();
@@ -94,7 +95,8 @@ public class ArrayEditing : ResoniteMod {
 
 				if (!_skipListChanges) {
 					array.Changed -= ArrayChanged;
-					array.Insert(buffer, startIndex);
+					array.CheckWriteIndex(startIndex);
+					array.InternalWrite(buffer, startIndex, 0, buffer.Length, true);
 					array.Changed += ArrayChanged;
 				}
 				AddUpdateProxies(array, list, addedElements);
@@ -199,7 +201,7 @@ public class ArrayEditing : ResoniteMod {
 			};
 		}
 
-		private static void AddUpdateProxies<T>(SyncArray<LinearKey<T>> array,
+		private static void AddUpdateProxies<T>(SyncArrayBase<LinearKey<T>> array,
 			SyncElementList<ValueGradientDriver<T>.Point> list, IEnumerable<ValueGradientDriver<T>.Point> elements)
 					where T : IEquatable<T> {
 			foreach (var point in elements) {
@@ -207,7 +209,7 @@ public class ArrayEditing : ResoniteMod {
 					if (_skipListChanges) return;
 					var index = list.IndexOfElement(point);
 					array.Changed -= ArrayChanged;
-					array[index] = new LinearKey<T>(point.Position, point.Value);
+					array.SetElement(index, new LinearKey<T>(point.Position, point.Value));
 					array.Changed += ArrayChanged;
 				};
 			}
@@ -252,7 +254,7 @@ public class ArrayEditing : ResoniteMod {
 			}
 		}
 
-		private static void AddUpdateProxies<T>(SyncArray<CurveKey<T>> array,
+		private static void AddUpdateProxies<T>(SyncArrayBase<CurveKey<T>> array,
 			SyncElementList<ValueGradientDriver<T>.Point> list, IEnumerable<ValueGradientDriver<T>.Point> elements)
 					where T : IEquatable<T> {
 			foreach (var point in elements) {
@@ -260,7 +262,7 @@ public class ArrayEditing : ResoniteMod {
 					if (_skipListChanges) return;
 					var index = list.IndexOfElement(point);
 					array.Changed -= ArrayChanged;
-					array[index] = new CurveKey<T>(point.Position, point.Value, array[index].leftTangent, array[index].rightTangent);
+					array.SetElement(index, new CurveKey<T>(point.Position, point.Value, array.GetElement(index).leftTangent, array.GetElement(index).rightTangent));
 					array.Changed += ArrayChanged;
 				};
 			}
@@ -270,7 +272,7 @@ public class ArrayEditing : ResoniteMod {
 			if (!Config.GetValue(Enabled)) {
 				return true; //Run original when disabled
 			}
-			if (!TryGetGenericParameter(typeof(SyncArray<>), array.GetType(), out var arrayType))
+			if (!TryGetGenericParameter(typeof(SyncArrayBase<>), array.GetType(), out var arrayType))
 				return false;
 
 			ui.Panel().Slot.GetComponent<LayoutElement>();
