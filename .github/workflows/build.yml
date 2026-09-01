@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,25 +23,21 @@ jobs:
         with:
           steam-user: ${{ secrets.STEAMUSER }}
           steam-password: ${{ secrets.STEAMPASS }}
-      #- name: Setup RML
-      #  shell: bash
-      #  run: |
-      #    mkdir -p "${{ steps.build-env.outputs.resonite-path }}/rml_libs"
-      #    curl -fsSL -o "${{ steps.build-env.outputs.libraries-path }}/ResoniteModLoader.dll" "https://github.com/resonite-modding-group/ResoniteModLoader/releases/latest/download/ResoniteModLoader.dll"
-      #    curl -fsSL -o "${{ steps.build-env.outputs.resonite-path }}/rml_libs/0Harmony.dll" "https://github.com/resonite-modding-group/ResoniteModLoader/releases/latest/download/0Harmony.dll"
 
       - name: Restore
         run: dotnet restore
 
       - name: Build
-        run: dotnet build -c Release -p:ResonitePath="${{ steps.build-env.outputs.resonite-path }}"
+        run: dotnet build -c Release
+        env:
+          ResonitePath: ${{ steps.build-env.outputs.resonite-path }}/
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ArrayEditing
-          path: |
-            **/bin/Release/net10.0/ArrayEditing.dll
+          path: **/bin/Release/net10.0/*
+          if-no-files-found: error
 
       - name: Download artifact for release
         uses: actions/download-artifact@v4
