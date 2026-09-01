@@ -28,14 +28,8 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
-		<Reference Include="ResoniteModLoader">
-			<HintPath>$(ResonitePath)Libraries\ResoniteModLoader.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="HarmonyLib">
-			<HintPath>$(ResonitePath)rml_libs\0Harmony.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
+		<PackageReference Include="ResoniteModLoader" Version="5.0.1" />
+		<PackageReference Include="Lib.Harmony" Version="2.4.2" />
 		<Reference Include="FrooxEngine" Publicize="true">
 			<HintPath>$(ResonitePath)FrooxEngine.dll</HintPath>
 			<Private>False</Private>
