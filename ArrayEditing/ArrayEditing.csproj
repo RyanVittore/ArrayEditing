@@ -1,16 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<AssemblyName>ArrayEditing</AssemblyName>
-		<RootNamespace>ArrayEditing</RootNamespace>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<TargetFramework>net10.0</TargetFramework>
-		<FileAlignment>512</FileAlignment>
 		<LangVersion>14.0</LangVersion>
 		<Nullable>enable</Nullable>
-		<Deterministic>true</Deterministic>
 		<!-- Change CopyToMods to true if you'd like builds to be moved into the Mods folder automatically-->
 		<CopyToMods Condition="'$(CopyToMods)'==''">true</CopyToMods>
-		<DebugType Condition="'$(Configuration)'=='Debug'">embedded</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(ResonitePath)'==''">
@@ -18,10 +13,12 @@
 		<ResonitePath>$(MSBuildThisFileDirectory)Resonite/</ResonitePath>
 		<ResonitePath Condition="Exists('C:\Program Files (x86)\Steam\steamapps\common\Resonite\')">C:\Program Files (x86)\Steam\steamapps\common\Resonite\</ResonitePath>
 		<ResonitePath Condition="Exists('$(HOME)/.steam/steam/steamapps/common/Resonite/')">$(HOME)/.steam/steam/steamapps/common/Resonite/</ResonitePath>
-
-		<ResonitePath Condition="Exists('C:\Resonite\')">C:\Resonite\</ResonitePath>
 	</PropertyGroup>
-
+	
+	<ItemDefinitionGroup>
+		<Reference Private="False"/>
+	</ItemDefinitionGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="MicroUtils.HarmonyAnalyzers" Version="1.3.1">
 			<PrivateAssets>all</PrivateAssets>
@@ -30,18 +27,12 @@
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
 		<PackageReference Include="ResoniteModLoader" Version="5.0.1" />
 		<PackageReference Include="Lib.Harmony" Version="2.4.2" />
-		<Reference Include="FrooxEngine" Publicize="true">
-			<HintPath>$(ResonitePath)FrooxEngine.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Elements.Core">
-			<HintPath>$(ResonitePath)Elements.Core.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="System.Text.Json">
-			<HintPath>$(ResonitePath)System.Text.Json.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
+		<Reference Include="FrooxEngine" HintPath="$(ResonitePath)FrooxEngine.dll" Publicize="true" />
+		<Reference Include="Elements.Core" HintPath="$(ResonitePath)Elements.Core.dll" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<EmbeddedResource Include="Locale\*.json" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
