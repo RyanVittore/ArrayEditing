@@ -269,7 +269,7 @@ public class ArrayEditing : ResoniteMod {
 		}
 
 		private static bool Prefix(ISyncArray array, string name, FieldInfo fieldInfo, UIBuilder ui, float labelSize) {
-			if (!Config.GetValue(Enabled)) {
+			if (!Enabled.Value) {
 				return true; //Run original when disabled
 			}
 			if (!TryGetGenericParameter(typeof(SyncArrayBase<>), array.GetType(), out var arrayType)) {
@@ -494,7 +494,7 @@ public class ArrayEditing : ResoniteMod {
 	[HarmonyPatch(typeof(ListEditor), "BuildListElement")]
 	internal class ListEditor_BuildListElement_Patch {
 		public static void Prefix(UIBuilder ui) {
-			if (Config.GetValue(Enabled)) {
+			if (Enabled.Value) {
 				ui.Style.MinHeight = 24f;
 			}
 		}
@@ -503,7 +503,7 @@ public class ArrayEditing : ResoniteMod {
 	[HarmonyPatch(typeof(SyncMemberEditorBuilder), "GenerateMemberField")]
 	internal class SyncMemberEditorBuilder_GenerateMemberField_Patch {
 		public static void Prefix(ISyncMember member, UIBuilder ui) {
-			if (!Config.GetValue(Enabled) || member.Parent is not ISyncList || member is not SyncObject)
+			if (!Enabled.Value || member.Parent is not ISyncList || member is not SyncObject)
 				return;
 
 			ui.CurrentRect.Slot.AttachComponent<HorizontalLayout>();
