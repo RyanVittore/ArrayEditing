@@ -1,0 +1,9 @@
+{
+  "localeCode": "en",
+  "authors": ["RyanVittore"],
+  "messages": {
+    "ArrayEditing.ProxyArray": "(Proxy array)",
+    "ArrayEditing.DrivenArray": "(Array is driven)",
+    "ArrayEditing.Settings.Enabled.Description": "Should Arrays generate a custom editor. Applies to new arrays."
+  }
+}

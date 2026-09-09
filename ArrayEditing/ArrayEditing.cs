@@ -15,14 +15,14 @@ using ResoniteModLoader;
 namespace ArrayEditing;
 
 public class ArrayEditing : ResoniteMod {
-	internal const string VERSION_CONSTANT = "1.0.2";
+	internal const string VERSION_CONSTANT = "1.0.3";
 	public override string Name => "Array Editing";
 	public override string Author => "Ryan Vittore";
 	public override string Version => VERSION_CONSTANT;
 	public override string Link => "https://github.com/RyanVittore/ArrayEditing";
 
 	[AutoRegisterConfigKey]
-	private static readonly ModConfigurationKey<bool> Enabled = new("Enabled", "Should Arrays generate a custom editor. Applies to new arrays.", () => true);
+	private static readonly ModConfigurationKey<bool> Enabled = new("Enabled", "ArrayEditing.Settings.Enabled.Description", () => true);
 
 	private static ModConfiguration Config;
 
@@ -278,7 +278,7 @@ public class ArrayEditing : ResoniteMod {
 			ui.Panel().Slot.GetComponent<LayoutElement>();
 			Slot slot = SyncMemberEditorBuilder.GenerateMemberField(array, name, ui, 0.3f);
 			ui.ForceNext = slot.AttachComponent<RectTransform>();
-			ui.Text("(Proxy Array)");
+			ui.Text("ArrayEditing.ProxyArray".AsLocaleKey());
 			ui.NestOut();
 
 			var isSyncLinear = TryGetGenericParameter(typeof(SyncLinear<>), array.GetType(), out var syncLinearType);
@@ -362,15 +362,14 @@ public class ArrayEditing : ResoniteMod {
 						listSlot.AttachComponent<LayoutElement>().MinHeight.Value = 24f;
 						var newUi = new UIBuilder(listSlot, listSlot);
 						RadiantUI_Constants.SetupEditorStyle(newUi);
-						newUi.Text("(array is driven)");
+						newUi.Text("ArrayEditting.DrivenArray".AsLocaleKey());
 						proxySlot?.Destroy();
 						array.Changed -= ArrayDriveCheck;
 					}
 				}
 				array.Changed += ArrayDriveCheck;
 			} else {
-				LocaleString text = "(array is driven)";
-				ui.Text(in text);
+				ui.Text("ArrayEditting.DrivenArray".AsLocaleKey());
 			}
 
 			if (newProxy) {
