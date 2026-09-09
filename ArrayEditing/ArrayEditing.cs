@@ -272,8 +272,10 @@ public class ArrayEditing : ResoniteMod {
 			if (!Config.GetValue(Enabled)) {
 				return true; //Run original when disabled
 			}
-			if (!TryGetGenericParameter(typeof(SyncArrayBase<>), array.GetType(), out var arrayType))
-				return false;
+			if (!TryGetGenericParameter(typeof(SyncArrayBase<>), array.GetType(), out var arrayType)) {
+				Warn($"{array.GetType()} is not yet supported");
+				return true; //Allow the original to run when unable to provide an editor
+			}
 
 			ui.Panel().Slot.GetComponent<LayoutElement>();
 			Slot slot = SyncMemberEditorBuilder.GenerateMemberField(array, name, ui, 0.3f);
